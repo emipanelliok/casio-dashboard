@@ -75,13 +75,6 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
 
-  // Protect with secret if DASH_SECRET env var is set
-  var secret = process.env.DASH_SECRET;
-  if (secret && req.query.secret !== secret) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-
   try {
     var now      = new Date();
     var todayStr = toARDateStr(now);

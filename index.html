@@ -210,13 +210,6 @@
     </div>
   </div>
 
-  <!-- Password overlay -->
-  <div id="pass-overlay" style="display:none;position:absolute;inset:0;z-index:100;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;gap:12px;">
-    <div id="pass-label" style="font-family:'Share Tech Mono',monospace;font-size:3vw;letter-spacing:0.1em;">ENTER PASSWORD</div>
-    <input id="pass-input" type="password" autocomplete="off" onkeydown="if(event.keyCode===13)submitPass();" style="background:transparent;border-width:1px;border-style:solid;border-radius:3px;padding:8px 14px;font-family:'Share Tech Mono',monospace;font-size:3.5vw;width:50vw;text-align:center;outline:none;" />
-    <div id="pass-btn" style="font-family:'Share Tech Mono',monospace;font-size:3vw;padding:8px 24px;border-width:1px;border-style:solid;border-radius:3px;cursor:pointer;letter-spacing:0.15em;" onclick="submitPass()">OK</div>
-    <div id="pass-err" style="font-size:2.5vw;opacity:0.6;min-height:1em;"></div>
-  </div>
 </div>
 
 <script>
@@ -410,8 +403,7 @@
   var todayISO='';
   function fetchAgenda(){
     var xhr=new XMLHttpRequest();
-    var dashSecret = localStorage.getItem('dash-secret') || '';
-    xhr.open('GET','/api/calendar' + (dashSecret ? '?secret='+encodeURIComponent(dashSecret) : ''), true);
+    xhr.open('GET','/api/calendar', true);
     xhr.onreadystatechange=function(){
       if(xhr.readyState!==4) return;
       var list=document.getElementById('agenda-list');
@@ -441,38 +433,9 @@
           }
           list.innerHTML=html;
         }catch(e){list.innerHTML='<div class="msg" style="color:'+c.segDim+'">ERR_</div>';}
-      } else if(xhr.status===401) {
-        localStorage.removeItem('dash-secret');
-        list.innerHTML='<div class="msg" style="color:'+c.segDim+'">CAL LOCKED_</div>';
       } else {list.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO CONN_</div>';}
     };
     xhr.send();
-  }
-
-  function showPassOverlay() {
-    var overlay = document.getElementById('pass-overlay');
-    var c = window._colors || THEMES.green;
-    overlay.style.background = c.bg;
-    overlay.style.display = '-webkit-flex';
-    overlay.style.display = 'flex';
-    document.getElementById('pass-label').style.color = c.segOn;
-    document.getElementById('pass-input').style.color = c.segOn;
-    document.getElementById('pass-input').style.borderColor = c.segDim;
-    document.getElementById('pass-btn').style.color = c.segOn;
-    document.getElementById('pass-btn').style.borderColor = c.segDim;
-    document.getElementById('pass-err').style.color = c.segDim;
-    document.getElementById('pass-err').innerHTML = '';
-    document.getElementById('pass-input').value = '';
-    document.getElementById('pass-input').focus();
-  }
-
-  function submitPass() {
-    var val = document.getElementById('pass-input').value;
-    if (!val) return;
-    localStorage.setItem('dash-secret', val);
-    document.getElementById('pass-overlay').style.display = 'none';
-    document.getElementById('agenda-list').innerHTML = '<div class="msg">LOADING_</div>';
-    fetchAgenda();
   }
 
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}

@@ -216,7 +216,7 @@
       <div id="weather-section"><div class="msg" id="w-msg">LOADING_</div></div>
     </div>
     <div class="panel" id="panel-right">
-      <div class="panel-label" id="panel-label-right">&#9632; SCHEDULE &#8212; NEXT 7 DAYS</div>
+      <div class="panel-label" id="panel-label-right">&#9632; SCHEDULE &#8212; NEXT 6 EVENTS</div>
       <div class="ev-list" id="agenda-list"><div class="msg">LOADING_</div></div>
     </div>
   </div>
@@ -424,7 +424,7 @@
           var data=JSON.parse(xhr.responseText);
           todayISO=data.today||'';
           if(!data.events||data.events.length===0){
-            list.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO EVENTS_</div>';return;
+            list.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO UPCOMING EVENTS_</div>';return;
           }
           var html='';
           for(var i=0;i<data.events.length;i++){
@@ -444,7 +444,7 @@
           }
           list.innerHTML=html;
         }catch(e){list.innerHTML='<div class="msg" style="color:'+c.segDim+'">ERR_</div>';}
-      } else {list.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO CONN_</div>';}
+      } else {list.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO DATA_</div>';}
     };
     xhr.send();
   }

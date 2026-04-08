@@ -42,20 +42,18 @@ function parseICS(icsText, calName, todayStr, limitStr) {
         var startDate = parseICSDate(start);
         if (startDate) {
           var startStr = toARDateStr(startDate);
-          if (startStr >= todayStr && startStr <= limitStr) {
-            var isAllDay = start.length === 8;
-            events.push({
-              title:    current.summary || '(sin título)',
-              date:     startStr,
-              dayLabel: DIAS_ES[startDate.getDay()],
-              dateNum:  startStr.slice(8,10)+'/'+startStr.slice(5,7),
-              start:    isAllDay ? null : startDate.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', timeZone: TZ }),
-              end:      (!isAllDay && current.dtend) ? parseICSDate(current.dtend).toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', timeZone: TZ }) : null,
-              allDay:   isAllDay,
-              calendar: calName,
-              sortKey:  startStr + (isAllDay ? 'T00:00' : startDate.toISOString().slice(10))
-            });
-          }
+          var isAllDay = start.length === 8;
+          events.push({
+            title:    current.summary || '(sin título)',
+            date:     startStr,
+            dayLabel: DIAS_ES[startDate.getDay()],
+            dateNum:  startStr.slice(8,10)+'/'+startStr.slice(5,7),
+            start:    isAllDay ? null : startDate.toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', timeZone: TZ }),
+            end:      (!isAllDay && current.dtend) ? parseICSDate(current.dtend).toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit', timeZone: TZ }) : null,
+            allDay:   isAllDay,
+            calendar: calName,
+            sortKey:  startStr + (isAllDay ? 'T00:00' : startDate.toISOString().slice(10))
+          });
         }
       }
       current = null;
@@ -75,17 +73,10 @@ module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Cache-Control', 'no-store');
 
-  // Protect with secret if DASH_SECRET env var is set
-  var secret = process.env.DASH_SECRET;
-  if (secret && req.query.secret !== secret) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-
   try {
     var now      = new Date();
     var todayStr = toARDateStr(now);
-    var limitStr = toARDateStr(new Date(now.getTime() + 7*24*60*60*1000));
+    var limitStr = null;
     var allEvents = [];
 
     // 1. Google Apps Script (devuelve JSON con títulos reales, útil para cuentas Workspace)
@@ -96,10 +87,8 @@ module.exports = async function handler(req, res) {
           var data = await resp.json();
           if (data.events) {
             data.events.forEach(function(ev) {
-              if (ev.date >= todayStr && ev.date <= limitStr) {
-                ev.sortKey = ev.date + (ev.allDay ? 'T00:00' : 'T'+(ev.start||'00:00'));
-                allEvents.push(ev);
-              }
+              ev.sortKey = ev.date + (ev.allDay ? 'T00:00' : 'T'+(ev.start||'00:00'));
+              allEvents.push(ev);
             });
           }
         }
@@ -119,6 +108,7 @@ module.exports = async function handler(req, res) {
     }
 
     allEvents.sort(function(a, b) { return a.sortKey.localeCompare(b.sortKey); });
+    allEvents = allEvents.slice(0, 6);
     res.status(200).json({ events: allEvents, count: allEvents.length, today: todayStr });
   } catch(e) {
     res.status(500).json({ error: e.message });

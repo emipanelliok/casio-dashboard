@@ -32,8 +32,8 @@ A retro LCD-style personal dashboard designed for old iPads (iPad 2, iOS 9+) —
 ### Location (weather)
 Edit `index.html` and update the coordinates at the top of the `<script>`:
 ```js
-var LAT = -34.6037;  // your latitude
-var LON = -58.3816;  // your longitude
+var LAT = -34.90716;  // your latitude
+var LON = -56.16009;  // your longitude
 ```
 
 ### Calendar — Option A: ICS URL (simplest)

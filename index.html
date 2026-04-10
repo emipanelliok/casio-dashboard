@@ -188,8 +188,45 @@
     <div class="panel" id="panel-right">
       <div class="panel-label" id="panel-label-right">&#9632; SCHEDULE &#8212; NEXT 7 DAYS</div>
       <div class="ev-list" id="agenda-list"><div class="msg">LOADING_</div></div>
+
+      <div style="margin-top: auto; border-top: 1px solid; padding-top: 1.5vh; text-align: center; display: flex; justify-content: center; gap: 1vw;" id="smart-home-container">
+        <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163736')" 
+                class="smart-btn"
+                style="background: transparent; border: 1px solid; padding: 0.8vh 1vw; font-family: 'Share Tech Mono', monospace; font-size: 1vw; cursor: pointer;">
+            [ MESA ON ]
+        </button>
+
+        <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163738')" 
+                class="smart-btn"
+                style="background: transparent; border: 1px solid; padding: 0.8vh 1vw; font-family: 'Share Tech Mono', monospace; font-size: 1vw; cursor: pointer;">
+            [ MESA OFF ]
+        </button>
+
+        <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163740')" 
+                class="smart-btn"
+                style="background: transparent; border: 1px solid; padding: 0.8vh 1vw; font-family: 'Share Tech Mono', monospace; font-size: 0.9vw; cursor: pointer;">
+            [ ARMARIO ON ]
+        </button>
+
+        <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163742')" 
+                class="smart-btn"
+                style="background: transparent; border: 1px solid; padding: 0.8vh 1vw; font-family: 'Share Tech Mono', monospace; font-size: 0.9vw; cursor: pointer;">
+            [ ARMARIO OFF ]
+        </button>
+        
+      </div>
+      
     </div>
   </div>
+   
+
+<script>
+function controlarLuz(url) {
+    if (url.includes('AQUI_PEGA')) return; // Evita errores si aún no has puesto el enlace
+    var img = new Image();
+    img.src = url;
+}
+</script>
 
   <!-- Password overlay -->
   <div id="pass-overlay" style="display:none;position:absolute;inset:0;z-index:100;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;gap:12px;">
@@ -201,7 +238,7 @@
 </div>
 
 <script>
-  var LAT=-34.6037, LON=-58.3816;
+  var LAT=36.680352819918866, LON=-6.115624448588384;
   var DIAS =['DOM','LUN','MAR','MIÉ','JUE','VIE','SÁB'];
   var MESES=['ENE','FEB','MAR','ABR','MAY','JUN','JUL','AGO','SEP','OCT','NOV','DIC'];
   var WMO={0:'CLEAR',1:'MOSTLY CLR',2:'PART CLOUD',3:'OVERCAST',
@@ -291,6 +328,15 @@
     applyWeatherColors(c);
     // Agenda
     applyAgendaColors(c);
+    // --- AÑADE ESTO PARA LOS BOTONES SMART HOME ---
+    var shContainer = document.getElementById('smart-home-container');
+    if (shContainer) shContainer.style.borderTopColor = c.segOff;
+    var sBtns = document.getElementsByClassName('smart-btn');
+    for (var i=0; i<sBtns.length; i++) {
+        sBtns[i].style.color = c.segOn;
+        sBtns[i].style.borderColor = c.segDim;
+    }
+    // ----------------------------------------------
     // Store
     window._theme = t;
     window._colors = c;

@@ -188,21 +188,24 @@
     <div class="panel" id="panel-right">
       <div class="panel-label" id="panel-label-right">&#9632; SCHEDULE &#8212; NEXT 7 DAYS</div>
       <div class="ev-list" id="agenda-list"><div class="msg">LOADING_</div></div>
+
+      <div style="margin-top: auto; border-top: 1px solid; padding-top: 1.5vh; text-align: center; display: flex; justify-content: center; gap: 1vw;" id="smart-home-container">
+        <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163736')" 
+                class="smart-btn"
+                style="background: transparent; border: 1px solid; padding: 0.8vh 1vw; font-family: 'Share Tech Mono', monospace; font-size: 1vw; cursor: pointer;">
+            [ MESA ON ]
+        </button>
+
+        <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163738')" 
+                class="smart-btn"
+                style="background: transparent; border: 1px solid; padding: 0.8vh 1vw; font-family: 'Share Tech Mono', monospace; font-size: 1vw; cursor: pointer;">
+            [ MESA OFF ]
+        </button>
+      </div>
+      
     </div>
   </div>
-    <div style="margin-top: 15px; border-top: 1px dashed rgba(0,0,0,0.3); padding-top: 15px; text-align: center;">
-    <p style="font-size: 10px; margin-bottom: 8px;">SMART HOME</p>
-    
-    <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163736')" 
-            style="background: transparent; color: inherit; border: 2px solid; padding: 8px 15px; font-family: 'Share Tech Mono', monospace; font-size: 16px; cursor: pointer; margin-right: 10px;">
-        [ ARMARIO ON ]
-    </button>
-
-    <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163738')" 
-            style="background: transparent; color: inherit; border: 2px solid; padding: 8px 15px; font-family: 'Share Tech Mono', monospace; font-size: 16px; cursor: pointer;">
-        [ ARMARIO OFF ]
-    </button>
-</div>
+   
 
 <script>
 function controlarLuz(url) {
@@ -312,6 +315,15 @@ function controlarLuz(url) {
     applyWeatherColors(c);
     // Agenda
     applyAgendaColors(c);
+    // --- AÑADE ESTO PARA LOS BOTONES SMART HOME ---
+    var shContainer = document.getElementById('smart-home-container');
+    if (shContainer) shContainer.style.borderTopColor = c.segOff;
+    var sBtns = document.getElementsByClassName('smart-btn');
+    for (var i=0; i<sBtns.length; i++) {
+        sBtns[i].style.color = c.segOn;
+        sBtns[i].style.borderColor = c.segDim;
+    }
+    // ----------------------------------------------
     // Store
     window._theme = t;
     window._colors = c;

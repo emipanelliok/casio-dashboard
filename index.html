@@ -190,6 +190,27 @@
       <div class="ev-list" id="agenda-list"><div class="msg">LOADING_</div></div>
     </div>
   </div>
+    <div style="margin-top: 15px; border-top: 1px dashed rgba(0,0,0,0.3); padding-top: 15px; text-align: center;">
+    <p style="font-size: 10px; margin-bottom: 8px;">SMART HOME</p>
+    
+    <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163736')" 
+            style="background: transparent; color: inherit; border: 2px solid; padding: 8px 15px; font-family: 'Share Tech Mono', monospace; font-size: 16px; cursor: pointer; margin-right: 10px;">
+        [ ARMARIO ON ]
+    </button>
+
+    <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163738')" 
+            style="background: transparent; color: inherit; border: 2px solid; padding: 8px 15px; font-family: 'Share Tech Mono', monospace; font-size: 16px; cursor: pointer;">
+        [ ARMARIO OFF ]
+    </button>
+</div>
+
+<script>
+function controlarLuz(url) {
+    if (url.includes('AQUI_PEGA')) return; // Evita errores si aún no has puesto el enlace
+    var img = new Image();
+    img.src = url;
+}
+</script>
 
   <!-- Password overlay -->
   <div id="pass-overlay" style="display:none;position:absolute;inset:0;z-index:100;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;gap:12px;">
@@ -468,27 +489,6 @@
   fetchAgenda();
   setInterval(fetchAgenda,15*60*1000);
   document.addEventListener('touchstart',function(){},false);
-</script>
-  <div style="margin-top: 15px; border-top: 1px dashed rgba(0,0,0,0.3); padding-top: 15px; text-align: center;">
-    <p style="font-size: 10px; margin-bottom: 8px;">SMART HOME</p>
-    
-    <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163736')" 
-            style="background: transparent; color: inherit; border: 2px solid; padding: 8px 15px; font-family: 'Share Tech Mono', monospace; font-size: 16px; cursor: pointer; margin-right: 10px;">
-        [ ARMARIO ON ]
-    </button>
-
-    <button onclick="controlarLuz('https://sequematic.com/trigger-custom-webhook/FD689D30C9/163738')" 
-            style="background: transparent; color: inherit; border: 2px solid; padding: 8px 15px; font-family: 'Share Tech Mono', monospace; font-size: 16px; cursor: pointer;">
-        [ ARMARIO OFF ]
-    </button>
-</div>
-
-<script>
-function controlarLuz(url) {
-    if (url.includes('AQUI_PEGA')) return; // Evita errores si aún no has puesto el enlace
-    var img = new Image();
-    img.src = url;
-}
 </script>
 </body>
 </html>

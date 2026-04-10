@@ -14,7 +14,6 @@
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
-  <!-- Estilos de tema inyectados por JS -->
   <style id="theme-style"></style>
   <style>
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -42,7 +41,6 @@
       pointer-events:none; z-index:1;
     }
 
-    /* HEADER */
     .header {
       display:-webkit-flex; display:flex;
       -webkit-flex-direction:row; flex-direction:row;
@@ -54,15 +52,17 @@
     }
     .h-label { font-size:1vw; letter-spacing:0.22em; text-transform:uppercase; }
     .modes { display:-webkit-flex; display:flex; gap:0.6vw; }
+
+    /* Clase unificada para TODOS los botones — GRN/BLU/B&W y MESA ON/OFF */
     .mode-btn {
       font-family:'Share Tech Mono','Courier New',monospace;
       font-size:0.85vw; letter-spacing:0.15em; cursor:pointer;
       background:none; border-width:1px; border-style:solid;
       padding:0.3vh 0.7vw; border-radius:2px;
       -webkit-user-select:none; user-select:none;
+      display:inline-block; text-align:center;
     }
 
-    /* HORA */
     .time-block {
       display:-webkit-flex; display:flex;
       -webkit-flex-direction:column; flex-direction:column;
@@ -93,7 +93,6 @@
     .date-row { display:-webkit-flex; display:flex; gap:4vw; margin-top:5vh; }
     .date-chip { font-size:3vw; letter-spacing:0.22em; text-transform:uppercase; }
 
-    /* DOS COLUMNAS */
     .bottom {
       display:-webkit-flex; display:flex;
       -webkit-flex-direction:row; flex-direction:row;
@@ -114,7 +113,6 @@
       padding-bottom:0.5vh;
     }
 
-    /* CLIMA */
     .temp-wrap { position:relative; display:inline-block; line-height:1; }
     .temp-ghost {
       font-family:'DSEG7','Courier New',monospace;
@@ -129,7 +127,6 @@
     .w-desc { margin-top:0.8vh; font-size:1.05vw; letter-spacing:0.1em; text-transform:uppercase; }
     .w-meta { margin-top:0.6vh; font-size:1.05vw; line-height:1.9; }
 
-    /* AGENDA */
     .ev-list {
       display:-webkit-flex; display:flex;
       -webkit-flex-direction:column; flex-direction:column;
@@ -153,6 +150,16 @@
     .ev-cal  { font-size:0.8vw; letter-spacing:0.06em; margin-left:auto; -webkit-flex-shrink:0; flex-shrink:0; }
     .ev-title { font-size:1.15vw; letter-spacing:0.04em; white-space:normal; word-break:break-word; line-height:1.3; }
     .msg { font-size:1.1vw; letter-spacing:0.1em; text-transform:uppercase; }
+
+    /* PASSWORD OVERLAY */
+    #pass-overlay {
+      display: none;
+      position: absolute; inset: 0; z-index: 100;
+      -webkit-align-items: center; align-items: center;
+      -webkit-justify-content: center; justify-content: center;
+      -webkit-flex-direction: column; flex-direction: column;
+      gap: 12px;
+    }
   </style>
 </head>
 <body>
@@ -188,17 +195,25 @@
     <div class="panel" id="panel-right">
       <div class="panel-label" id="panel-label-right">&#9632; SCHEDULE &#8212; NEXT 7 DAYS</div>
       <div class="ev-list" id="agenda-list"><div class="msg">LOADING_</div></div>
+
+      <!-- Botones smart home: misma estructura exacta que GRN/BLU/B&W -->
+      <div id="smart-home-container" style="margin-top:auto; border-top:1px solid; padding-top:1.5vh; display:-webkit-flex; display:flex; -webkit-justify-content:center; justify-content:center; gap:1vw;">
+        <button class="mode-btn smart-btn" id="btn-mesa-on"  onclick="controlarLuz(this,'https://sequematic.com/trigger-custom-webhook/FD689D30C9/163736')">MESA ON</button>
+        <button class="mode-btn smart-btn" id="btn-mesa-off" onclick="controlarLuz(this,'https://sequematic.com/trigger-custom-webhook/FD689D30C9/163738')">MESA OFF</button>
+      </div>
     </div>
   </div>
 
-  <!-- Password overlay -->
-  <div id="pass-overlay" style="display:none;position:absolute;inset:0;z-index:100;-webkit-align-items:center;align-items:center;-webkit-justify-content:center;justify-content:center;display:-webkit-flex;display:flex;-webkit-flex-direction:column;flex-direction:column;gap:12px;">
+  <!-- Password overlay DENTRO de .watch -->
+  <div id="pass-overlay">
     <div id="pass-label" style="font-family:'Share Tech Mono',monospace;font-size:3vw;letter-spacing:0.1em;">ENTER PASSWORD</div>
-    <input id="pass-input" type="password" autocomplete="off" onkeydown="if(event.keyCode===13)submitPass();" style="background:transparent;border-width:1px;border-style:solid;border-radius:3px;padding:8px 14px;font-family:'Share Tech Mono',monospace;font-size:3.5vw;width:50vw;text-align:center;outline:none;" />
-    <div id="pass-btn" style="font-family:'Share Tech Mono',monospace;font-size:3vw;padding:8px 24px;border-width:1px;border-style:solid;border-radius:3px;cursor:pointer;letter-spacing:0.15em;" onclick="submitPass()">OK</div>
+    <input id="pass-input" type="password" autocomplete="off" onkeydown="if(event.keyCode===13)submitPass();"
+           style="background:transparent;border-width:1px;border-style:solid;border-radius:3px;padding:8px 14px;font-family:'Share Tech Mono',monospace;font-size:3.5vw;width:50vw;text-align:center;outline:none;" />
+    <button class="mode-btn" id="pass-btn" onclick="submitPass()" style="font-size:3vw;padding:8px 24px;letter-spacing:0.15em;">OK</button>
     <div id="pass-err" style="font-size:2.5vw;opacity:0.6;min-height:1em;"></div>
   </div>
-</div>
+
+</div><!-- fin .watch -->
 
 <script>
   var LAT=-34.6037, LON=-58.3816;
@@ -210,59 +225,34 @@
     80:'SHOWERS',81:'SHOWERS+',82:'SHOWERS++',85:'SNOWFALL',
     95:'THUNDER',96:'HAIL',99:'HAIL+'};
 
-  // ── TEMAS (colores directos, sin CSS variables) ────────────
   var THEMES = {
     green: {
-      bodyBg:    '#0A0A08',
-      screenBg:  '#141F0C',
-      segOn:     '#B8D870',
-      segOff:    '#1E2E10',
-      segDim:    '#4A6228',
-      border:    '#3A5220',
-      label:     '#527030',
-      glow:      'rgba(168,210,80,0.35)',
-      scanline:  'rgba(0,0,0,0.22)'
+      bodyBg:'#0A0A08', screenBg:'#141F0C', segOn:'#B8D870', segOff:'#1E2E10',
+      segDim:'#4A6228', border:'#3A5220', label:'#527030',
+      glow:'rgba(168,210,80,0.35)', scanline:'rgba(0,0,0,0.22)'
     },
     blue: {
-      bodyBg:    '#05080F',
-      screenBg:  '#0A1020',
-      segOn:     '#70B8FF',
-      segOff:    '#0E1E32',
-      segDim:    '#204060',
-      border:    '#1A4070',
-      label:     '#2A5080',
-      glow:      'rgba(80,160,255,0.35)',
-      scanline:  'rgba(0,0,0,0.22)'
+      bodyBg:'#05080F', screenBg:'#0A1020', segOn:'#70B8FF', segOff:'#0E1E32',
+      segDim:'#204060', border:'#1A4070', label:'#2A5080',
+      glow:'rgba(80,160,255,0.35)', scanline:'rgba(0,0,0,0.22)'
     },
     mono: {
-      bodyBg:    '#050505',
-      screenBg:  '#0F0F0F',
-      segOn:     '#DEDEDE',
-      segOff:    '#1C1C1C',
-      segDim:    '#4A4A4A',
-      border:    '#333333',
-      label:     '#444444',
-      glow:      'rgba(210,210,210,0.2)',
-      scanline:  'rgba(0,0,0,0.28)'
+      bodyBg:'#050505', screenBg:'#0F0F0F', segOn:'#DEDEDE', segOff:'#1C1C1C',
+      segDim:'#4A4A4A', border:'#333333', label:'#444444',
+      glow:'rgba(210,210,210,0.2)', scanline:'rgba(0,0,0,0.28)'
     }
   };
 
   function applyTheme(t) {
     var c = THEMES[t];
-    // Body
     document.body.style.backgroundColor = c.bodyBg;
-    // Watch
     var w = document.getElementById('watch');
     w.style.backgroundColor = c.screenBg;
     w.style.borderColor = c.border;
     w.style.backgroundImage = 'repeating-linear-gradient(0deg,'+c.scanline+' 0px,'+c.scanline+' 1px,transparent 1px,transparent 3px)';
-    // Inner border
     document.getElementById('watch-inner').style.borderColor = c.segOff;
-    // Header
-    var header = document.getElementById('header');
-    header.style.borderBottomColor = c.segOff;
+    document.getElementById('header').style.borderBottomColor = c.segOff;
     colorEls('h-label', c.label);
-    // Mode buttons
     var btnIds = ['green','blue','mono'];
     for (var i=0;i<btnIds.length;i++) {
       var btn = document.getElementById('btn-'+btnIds[i]);
@@ -271,27 +261,37 @@
         btn.style.borderColor = btnIds[i]===t ? c.segDim : c.segOff;
       }
     }
-    // Time block
     document.getElementById('time-block').style.borderBottomColor = c.segOff;
-    // Clock ghost/real
     document.getElementById('clock-ghost').style.color = c.segOff;
     var cr = document.getElementById('clock-real');
     cr.style.color = c.segOn;
     cr.style.textShadow = '0 0 16px '+c.glow+', 0 0 40px '+c.glow;
-    // Date chips
     colorEls('date-chip', c.segDim);
     var df = document.getElementById('date-full');
     if (df) df.style.color = c.segOn;
-    // Panels
     document.getElementById('panel-left').style.borderRightColor = c.segOff;
     colorEls('panel-label', c.label);
     document.getElementById('panel-label-left').style.borderBottomColor = c.segOff;
     document.getElementById('panel-label-right').style.borderBottomColor = c.segOff;
-    // Weather
+    var shc = document.getElementById('smart-home-container');
+    if (shc) shc.style.borderTopColor = c.segOff;
+    var sBtns = document.getElementsByClassName('smart-btn');
+    for (var i=0; i<sBtns.length; i++) {
+      sBtns[i].style.color = c.segOn;
+      sBtns[i].style.borderColor = c.segDim;
+    }
+    var overlay = document.getElementById('pass-overlay');
+    if (overlay) overlay.style.backgroundColor = c.screenBg;
+    var plabel = document.getElementById('pass-label');
+    if (plabel) plabel.style.color = c.segOn;
+    var pinput = document.getElementById('pass-input');
+    if (pinput) { pinput.style.color = c.segOn; pinput.style.borderColor = c.segDim; }
+    var pbtn = document.getElementById('pass-btn');
+    if (pbtn) { pbtn.style.color = c.segOn; pbtn.style.borderColor = c.segDim; }
+    var perr = document.getElementById('pass-err');
+    if (perr) perr.style.color = c.segDim;
     applyWeatherColors(c);
-    // Agenda
     applyAgendaColors(c);
-    // Store
     window._theme = t;
     window._colors = c;
     localStorage.setItem('casio-theme', t);
@@ -319,8 +319,6 @@
     var evs = document.getElementsByClassName('ev');
     for (var i=0;i<evs.length;i++) evs[i].style.borderColor = c.segOff;
     colorEls('ev-date', c.segDim);
-    var todays = document.getElementsByClassName('ev-date today');
-    for (var i=0;i<todays.length;i++) todays[i].style.color = c.segOn;
     colorEls('ev-time', c.label);
     colorEls('ev-title', c.segOn);
     colorEls('ev-cal', c.label);
@@ -334,7 +332,16 @@
 
   function setTheme(t) { applyTheme(t); }
 
-  // ── RELOJ ─────────────────────────────────────────────────
+  /* ── SMART HOME ─────────────────────────────────────────── */
+  function controlarLuz(boton, url) {
+    var textoOriginal = boton.innerHTML;
+    boton.innerHTML = 'OK';
+    var img = new Image();
+    img.src = url + '?rnd=' + Math.random();
+    setTimeout(function() { boton.innerHTML = textoOriginal; }, 800);
+  }
+
+  /* ── RELOJ ──────────────────────────────────────────────── */
   function pad(n){ return n<10?'0'+n:''+n; }
 
   function updateClock() {
@@ -346,7 +353,6 @@
     document.getElementById('date-day').textContent = DIAS[now.getDay()];
     document.getElementById('date-full').textContent =
       pad(now.getDate())+'-'+MESES[now.getMonth()]+'-'+now.getFullYear();
-    // Re-aplicar color de fecha
     if (window._colors) {
       document.getElementById('date-day').style.color  = window._colors.segDim;
       document.getElementById('date-full').style.color = window._colors.segOn;
@@ -358,7 +364,7 @@
     }
   }
 
-  // ── CLIMA ─────────────────────────────────────────────────
+  /* ── CLIMA ──────────────────────────────────────────────── */
   function fetchWeather() {
     var xhr=new XMLHttpRequest();
     xhr.open('GET','/api/weather?lat='+LAT+'&lon='+LON,true);
@@ -387,8 +393,7 @@
     xhr.send();
   }
 
-  // ── AGENDA ────────────────────────────────────────────────
-  var todayISO='';
+  /* ── AGENDA ─────────────────────────────────────────────── */
   function fetchAgenda(){
     var xhr=new XMLHttpRequest();
     var dashSecret = localStorage.getItem('dash-secret') || '';
@@ -400,7 +405,7 @@
       if(xhr.status===200){
         try{
           var data=JSON.parse(xhr.responseText);
-          todayISO=data.today||'';
+          var todayISO=data.today||'';
           if(!data.events||data.events.length===0){
             list.innerHTML='<div class="msg" style="color:'+c.segDim+'">NO EVENTS_</div>';return;
           }
@@ -432,7 +437,7 @@
   function showPassOverlay() {
     var overlay = document.getElementById('pass-overlay');
     var c = window._colors || THEMES.green;
-    overlay.style.background = c.bg;
+    overlay.style.backgroundColor = c.screenBg;
     overlay.style.display = '-webkit-flex';
     overlay.style.display = 'flex';
     document.getElementById('pass-label').style.color = c.segOn;
@@ -457,10 +462,9 @@
 
   function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-  // ── INIT ──────────────────────────────────────────────────
+  /* ── INIT ───────────────────────────────────────────────── */
   var savedTheme = localStorage.getItem('casio-theme')||'green';
   applyTheme(savedTheme);
-
   updateClock();
   setInterval(updateClock,1000);
   fetchWeather();
